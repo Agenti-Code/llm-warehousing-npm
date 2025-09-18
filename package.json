@@ -1,0 +1,53 @@
+{
+  "name": "llm-warehouse",
+  "version": "0.1.1",
+  "description": "Auto-capture OpenAI and Anthropic LLM calls for warehousing and observability",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "dev": "tsc --watch",
+    "test": "ts-node test.ts"
+  },
+  "keywords": [
+    "llm",
+    "openai",
+    "anthropic",
+    "logging",
+    "observability",
+    "monitoring",
+    "warehouse"
+  ],
+  "author": "Sinan Ozdemir <sinan.u.ozdemir@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "openai": "^4.0.0"
+  },
+  "peerDependencies": {
+    "openai": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.0.0",
+    "dotenv": "^16.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Agenti-Code/llm-warehousing.git",
+    "directory": "llm-warehouse-npm"
+  },
+  "bugs": {
+    "url": "https://github.com/Agenti-Code/llm-warehousing/issues"
+  },
+  "homepage": "https://github.com/Agenti-Code/llm-warehousing#readme"
+}
