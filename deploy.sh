@@ -137,6 +137,14 @@ if [[ $confirm =~ ^[Yy]$ ]]; then
         echo "   npm view llm-warehouse"
         echo "   npm info llm-warehouse"
         echo ""
+        
+        # Push git changes and tags
+        if [ "$version_type" != "skip" ]; then
+            echo "📤 Pushing git changes and tags..."
+            git push origin HEAD
+            git push origin --tags
+            echo "✅ Git changes and tags pushed to remote"
+        fi
     else
         echo "❌ Publishing failed!"
         exit 1
