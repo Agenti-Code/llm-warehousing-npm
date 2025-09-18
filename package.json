@@ -43,11 +43,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Agenti-Code/llm-warehousing.git",
-    "directory": "llm-warehouse-npm"
+    "url": "https://github.com/Agenti-Code/llm-warehousing-npm.git"
   },
   "bugs": {
-    "url": "https://github.com/Agenti-Code/llm-warehousing/issues"
+    "url": "https://github.com/Agenti-Code/llm-warehousing-npm/issues"
   },
-  "homepage": "https://github.com/Agenti-Code/llm-warehousing#readme"
+  "homepage": "https://github.com/Agenti-Code/llm-warehousing-npm#readme"
 }

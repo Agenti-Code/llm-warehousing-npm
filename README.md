@@ -107,7 +107,7 @@ This library works with your LLM Warehouse Flask backend:
 ## 🧪 Development
 
 ```bash
-git clone https://github.com/Agenti-Code/llm-warehousing.git
+git clone https://github.com/Agenti-Code/llm-warehousing-npm.git
 cd llm-warehousing/llm-warehouse-npm
 npm install
 npm run build
