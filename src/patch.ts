@@ -126,7 +126,7 @@ function patchGlobalObject(globalObj: any, functionName: string, methodPath: str
       if (!_originalFunctions.has(methodPath)) {
         _originalFunctions.set(methodPath, globalObj[functionName]);
         globalObj[functionName] = wrapVercelAIMethod(methodPath, globalObj[functionName]);
-        if (DEBUG) console.log(`[llm-warehouse] Patched ${methodPath}`);
+        if (DEBUG) console.log(`[llm-warehouse] Successfully patched ${methodPath}`);
         return true;
       }
     }
@@ -208,6 +208,43 @@ function setupModuleHook(): void {
   }
 }
 
+// Function to manually patch Vercel AI SDK functions
+export function patchVercelAIFunctions(functions: {
+  generateText?: any;
+  generateObject?: any;
+  streamText?: any;
+  streamObject?: any;
+}): {
+  generateText?: any;
+  generateObject?: any;
+  streamText?: any;
+  streamObject?: any;
+} {
+  const patched: any = {};
+  
+  if (functions.generateText) {
+    patched.generateText = wrapVercelAIMethod('ai.generateText', functions.generateText);
+    if (DEBUG) console.log('[llm-warehouse] Patched generateText');
+  }
+  
+  if (functions.generateObject) {
+    patched.generateObject = wrapVercelAIMethod('ai.generateObject', functions.generateObject);
+    if (DEBUG) console.log('[llm-warehouse] Patched generateObject');
+  }
+  
+  if (functions.streamText) {
+    patched.streamText = wrapVercelAIMethod('ai.streamText', functions.streamText);
+    if (DEBUG) console.log('[llm-warehouse] Patched streamText');
+  }
+  
+  if (functions.streamObject) {
+    patched.streamObject = wrapVercelAIMethod('ai.streamObject', functions.streamObject);
+    if (DEBUG) console.log('[llm-warehouse] Patched streamObject');
+  }
+  
+  return patched;
+}
+
 export function installPatch(): void {
   if (_patchApplied) {
     if (DEBUG) console.log('[llm-warehouse] Patch already applied, skipping');
@@ -252,10 +289,13 @@ export function installPatch(): void {
     if (DEBUG) console.log('[llm-warehouse] OpenAI patches installed');
     
     // === Vercel AI SDK Patches ===
-    // Patch Vercel AI SDK asynchronously (since it might not be loaded yet)
-    patchVercelAI().catch(() => {
-      // Silently fail if Vercel AI SDK is not available
-    });
+    // Note: Vercel AI SDK exports are read-only and cannot be patched directly
+    // The package should be imported AFTER llm-warehouse for auto-patching to work
+    // For manual patching, users should use the wrapper functions provided
+    if (DEBUG) {
+      console.log('[llm-warehouse] Note: Vercel AI SDK requires manual patching due to read-only exports');
+      console.log('[llm-warehouse] Use patchVercelAIFunctions() for manual patching');
+    }
     
     _patchApplied = true;
     if (DEBUG) console.log('[llm-warehouse] All patches installed successfully');

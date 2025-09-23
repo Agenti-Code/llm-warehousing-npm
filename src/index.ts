@@ -27,7 +27,7 @@ if (shouldAutoPatch()) {
 }
 
 // Export everything
-export { installPatch } from './patch';
+export { installPatch, patchVercelAIFunctions } from './patch';
 export { getRecentLogs, showRecentLogs } from './query';
 export { patch, isEnabled, isPatched, status } from './observify';
 export * from './types';

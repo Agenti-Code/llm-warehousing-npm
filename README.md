@@ -2,7 +2,7 @@
 
 🏠 **Auto-capture OpenAI and Vercel AI SDK calls for warehousing**
 
-A lightweight TypeScript/Node.js library that automatically logs all your OpenAI and Vercel AI SDK calls to your LLM warehouse backend.
+A lightweight TypeScript/Node.js library that automatically logs your OpenAI calls and provides manual patching for Vercel AI SDK calls to your LLM warehouse backend.
 
 ## 🚀 Quick Start
 
@@ -23,7 +23,9 @@ export LLM_WAREHOUSE_API_KEY="your-warehouse-api-key"
 export LLM_WAREHOUSE_URL="https://your-warehouse.com"
 ```
 
-Then just import the library BEFORE importing OpenAI - logging happens automatically:
+### OpenAI (Automatic Patching)
+
+Just import the library BEFORE importing OpenAI - logging happens automatically:
 
 ```typescript
 import 'llm-warehouse';  // BEFORE openai
@@ -35,6 +37,31 @@ const client = new OpenAI();
 const response = await client.chat.completions.create({
   model: "gpt-4",
   messages: [{"role": "user", "content": "Hello!"}]
+});
+```
+
+### Vercel AI SDK (Manual Patching)
+
+For Vercel AI SDK, you need to manually patch the functions due to ES6 module limitations:
+
+```typescript
+import 'llm-warehouse';
+import { installPatch, patchVercelAIFunctions } from 'llm-warehouse';
+import { openai } from '@ai-sdk/openai';
+import { generateText as originalGenerateText } from 'ai';
+
+// Install patches
+installPatch();
+
+// Manually patch Vercel AI functions
+const { generateText } = patchVercelAIFunctions({
+  generateText: originalGenerateText
+});
+
+// Use the patched function - automatically logged!
+const { text } = await generateText({
+  model: openai('gpt-4o'),
+  prompt: 'Explain quantum computing',
 });
 ```
 
@@ -89,7 +116,7 @@ await showRecentLogs(5);
 
 - ✅ **Zero-configuration**: Works out of the box with environment variables
 - ✅ **OpenAI integration**: Automatic patching of OpenAI Node.js SDK
-- ✅ **Vercel AI SDK**: Automatic patching of Vercel AI SDK (generateText, generateObject, etc.)
+- ✅ **Vercel AI SDK**: Manual patching support (due to ES6 module limitations)
 - ✅ **Async support**: Full async/await compatibility
 - ✅ **Streaming support**: Captures streaming responses
 - ✅ **Error handling**: Logs API errors and exceptions
@@ -187,12 +214,20 @@ main();
 ### Vercel AI SDK Example
 
 ```typescript
-import 'llm-warehouse';  // Import BEFORE AI SDK
-import { generateText } from 'ai';
+import { installPatch, patchVercelAIFunctions } from 'llm-warehouse';
+import { generateText as originalGenerateText } from 'ai';
 import { openai } from '@ai-sdk/openai';
 
 async function main() {
-  // This call will be automatically logged to your warehouse
+  // Install patches
+  installPatch();
+  
+  // Manually patch Vercel AI functions
+  const { generateText } = patchVercelAIFunctions({
+    generateText: originalGenerateText
+  });
+
+  // This call will now be logged to your warehouse
   const { text } = await generateText({
     model: openai('gpt-4o'),
     prompt: 'Explain quantum computing in simple terms',
@@ -227,6 +262,25 @@ async function streamExample() {
 
 streamExample();
 ```
+
+## ⚠️ Important Notes
+
+### Vercel AI SDK Limitations
+
+Due to ES6 module export limitations, **Vercel AI SDK functions cannot be automatically patched**. You must use the manual patching approach:
+
+1. **Import with alias**: `import { generateText as originalGenerateText } from 'ai'`
+2. **Call installPatch()**: Sets up OpenAI auto-patching and environment
+3. **Manually patch**: `const { generateText } = patchVercelAIFunctions({ generateText: originalGenerateText })`
+4. **Use patched function**: Use the returned `generateText` for automatic logging
+
+**Why this limitation exists**: ES6 modules have read-only exports that cannot be modified at runtime, unlike CommonJS modules. This is a JavaScript/Node.js limitation, not specific to this library.
+
+**Supported functions for manual patching**:
+- `generateText`
+- `generateObject` 
+- `streamText`
+- `streamObject`
 
 ## 📝 License
 

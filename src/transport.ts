@@ -1,19 +1,41 @@
 import { LLMCallData } from './types';
 
-// Environment configuration - only warehouse URL
-const WAREHOUSE_URL = process.env.LLM_WAREHOUSE_URL;
-const WAREHOUSE_KEY = process.env.LLM_WAREHOUSE_API_KEY;
-const DEBUG = !['', '0', 'false', 'False', 'no', 'off'].includes(process.env.LLM_WAREHOUSE_DEBUG || '0');
+// Environment configuration - read dynamically to ensure .env is loaded
+function getWarehouseURL(): string | undefined {
+  return process.env.LLM_WAREHOUSE_URL;
+}
+
+function getWarehouseKey(): string | undefined {
+  return process.env.LLM_WAREHOUSE_API_KEY;
+}
+
+function isDebugEnabled(): boolean {
+  return !['', '0', 'false', 'False', 'no', 'off'].includes(process.env.LLM_WAREHOUSE_DEBUG || '0');
+}
 
 function getHeaders(): Record<string, string> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (WAREHOUSE_KEY) {
-    headers['Authorization'] = `Bearer ${WAREHOUSE_KEY}`;
+  const warehouseKey = getWarehouseKey();
+  if (warehouseKey) {
+    headers['Authorization'] = `Bearer ${warehouseKey}`;
   }
   return headers;
 }
 
 export async function send(record: LLMCallData): Promise<void> {
+  // Get environment variables dynamically
+  const WAREHOUSE_URL = getWarehouseURL();
+  const WAREHOUSE_KEY = getWarehouseKey();
+  const DEBUG = isDebugEnabled();
+  
+  if (DEBUG) {
+    console.log('[llm-warehouse] Sending to warehouse:', {
+      url: WAREHOUSE_URL,
+      hasKey: !!WAREHOUSE_KEY,
+      method: record.sdk_method
+    });
+  }
+  
   // Add default metadata
   record.timestamp = record.timestamp || new Date().toISOString();
   record.source = record.source || 'typescript-openai';
@@ -22,6 +44,12 @@ export async function send(record: LLMCallData): Promise<void> {
     OPENAI_ORG: process.env.OPENAI_ORG,
     OPENAI_PROJECT: process.env.OPENAI_PROJECT,
   };
+
+  if (DEBUG) {
+    console.log('[llm-warehouse] SEND DEBUG - WAREHOUSE_URL:', WAREHOUSE_URL);
+    console.log('[llm-warehouse] SEND DEBUG - WAREHOUSE_KEY exists:', !!WAREHOUSE_KEY);
+    console.log('[llm-warehouse] SEND DEBUG - Record:', JSON.stringify(record, null, 2));
+  }
 
   // Only warehouse URL - fail silently if not configured
   if (!WAREHOUSE_URL || !WAREHOUSE_KEY) {
