@@ -45,10 +45,9 @@ const response = await client.chat.completions.create({
 For Vercel AI SDK, you need to manually patch the functions due to ES6 module limitations:
 
 ```typescript
-import 'llm-warehouse';
 import { installPatch, patchVercelAIFunctions } from 'llm-warehouse';
-import { openai } from '@ai-sdk/openai';
 import { generateText as originalGenerateText } from 'ai';
+import { openai } from '@ai-sdk/openai';
 
 // Install patches
 installPatch();
