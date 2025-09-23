@@ -1,8 +1,8 @@
 # LLM Warehouse (TypeScript/Node.js)
 
-🏠 **Auto-capture OpenAI LLM calls for warehousing**
+🏠 **Auto-capture OpenAI and Vercel AI SDK calls for warehousing**
 
-A lightweight TypeScript/Node.js library that automatically logs all your OpenAI API calls to your LLM warehouse backend.
+A lightweight TypeScript/Node.js library that automatically logs all your OpenAI and Vercel AI SDK calls to your LLM warehouse backend.
 
 ## 🚀 Quick Start
 
@@ -89,6 +89,7 @@ await showRecentLogs(5);
 
 - ✅ **Zero-configuration**: Works out of the box with environment variables
 - ✅ **OpenAI integration**: Automatic patching of OpenAI Node.js SDK
+- ✅ **Vercel AI SDK**: Automatic patching of Vercel AI SDK (generateText, generateObject, etc.)
 - ✅ **Async support**: Full async/await compatibility
 - ✅ **Streaming support**: Captures streaming responses
 - ✅ **Error handling**: Logs API errors and exceptions
@@ -178,6 +179,26 @@ async function main() {
   
   // Get status
   console.log('Status:', llmWarehouse.status());
+}
+
+main();
+```
+
+### Vercel AI SDK Example
+
+```typescript
+import 'llm-warehouse';  // Import BEFORE AI SDK
+import { generateText } from 'ai';
+import { openai } from '@ai-sdk/openai';
+
+async function main() {
+  // This call will be automatically logged to your warehouse
+  const { text } = await generateText({
+    model: openai('gpt-4o'),
+    prompt: 'Explain quantum computing in simple terms',
+  });
+
+  console.log(text);
 }
 
 main();

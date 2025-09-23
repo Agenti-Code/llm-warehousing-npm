@@ -22,16 +22,26 @@
   "author": "Sinan Ozdemir <sinan.u.ozdemir@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@ai-sdk/openai": "^2.0.32",
+    "ai": "^5.0.49",
     "openai": "^4.0.0"
   },
   "peerDependencies": {
     "openai": "^4.0.0"
   },
+  "peerDependenciesMeta": {
+    "ai": {
+      "optional": true
+    },
+    "@ai-sdk/openai": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "typescript": "^5.0.0",
+    "dotenv": "^16.0.0",
     "ts-node": "^10.0.0",
-    "dotenv": "^16.0.0"
+    "typescript": "^5.0.0"
   },
   "engines": {
     "node": ">=16.0.0"
