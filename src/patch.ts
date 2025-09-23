@@ -137,49 +137,6 @@ function patchGlobalObject(globalObj: any, functionName: string, methodPath: str
   }
 }
 
-async function patchVercelAI(): Promise<void> {
-  try {
-    if (DEBUG) console.log('[llm-warehouse] Attempting to patch Vercel AI SDK...');
-    
-    // Method 1: Try to patch via dynamic import
-    try {
-      // Use eval to avoid TypeScript compilation errors when 'ai' module doesn't exist
-      const aiModule = await eval('import("ai")');
-      patchGlobalObject(aiModule, 'generateText', 'ai.generateText');
-      patchGlobalObject(aiModule, 'generateObject', 'ai.generateObject');
-      patchGlobalObject(aiModule, 'streamText', 'ai.streamText');
-      patchGlobalObject(aiModule, 'streamObject', 'ai.streamObject');
-    } catch (importError) {
-      if (DEBUG) console.log('[llm-warehouse] Direct import failed, trying alternative methods');
-    }
-    
-    // Method 2: Try to patch via require cache (Node.js)
-    if (typeof require !== 'undefined' && require.cache) {
-      try {
-        const aiModuleKey = Object.keys(require.cache).find(key => 
-          key.includes('node_modules/ai/') || key.endsWith('/ai/index.js')
-        );
-        
-        if (aiModuleKey && require.cache[aiModuleKey]) {
-          const aiModule = require.cache[aiModuleKey].exports;
-          patchGlobalObject(aiModule, 'generateText', 'ai.generateText');
-          patchGlobalObject(aiModule, 'generateObject', 'ai.generateObject');
-          patchGlobalObject(aiModule, 'streamText', 'ai.streamText');
-          patchGlobalObject(aiModule, 'streamObject', 'ai.streamObject');
-        }
-      } catch (cacheError) {
-        if (DEBUG) console.log('[llm-warehouse] Require cache patching failed');
-      }
-    }
-    
-    // Method 3: Set up a module loader hook for future imports
-    setupModuleHook();
-    
-  } catch (error) {
-    if (DEBUG) console.log('[llm-warehouse] Error in patchVercelAI:', error);
-  }
-}
-
 function setupModuleHook(): void {
   // Hook into module loading for future Vercel AI imports
   if (typeof require !== 'undefined') {
