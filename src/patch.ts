@@ -42,18 +42,18 @@ function wrapOpenAIMethod(methodPath: string, originalMethod: Function): any {
       // Handle streaming
       if (args[0]?.stream) {
         record.response = 'streaming_response';
-        await send(record);
+        void send(record);
         return result;
       }
       
       record.response = serialize(result);
       record.request_id = result?.id;
-      await send(record);
+      void send(record);
       return result;
     } catch (error: any) {
       record.latency_s = (Date.now() - startTime) / 1000;
       record.error = error?.toString() || 'Unknown error';
-      await send(record);
+      void send(record);
       throw error;
     }
   };
@@ -90,7 +90,7 @@ function wrapVercelAIMethod(methodPath: string, originalMethod: Function): any {
         // Handle streaming responses
         if (result.textStream || result.objectStream) {
           record.response = 'vercel_ai_streaming_response';
-          await send(record);
+          void send(record);
           return result;
         }
         
@@ -100,18 +100,21 @@ function wrapVercelAIMethod(methodPath: string, originalMethod: Function): any {
         if (result.object) responseData.object = serialize(result.object);
         if (result.usage) responseData.usage = result.usage;
         if (result.finishReason) responseData.finishReason = result.finishReason;
+        if (result.toolCalls) responseData.toolCalls = result.toolCalls;
+        if (result.rawResponse) responseData.rawResponse = result.rawResponse;
+        if (result.warnings) responseData.warnings = result.warnings;
         
         record.response = responseData;
       } else {
         record.response = serialize(result);
       }
       
-      await send(record);
+      void send(record);
       return result;
     } catch (error: any) {
       record.latency_s = (Date.now() - startTime) / 1000;
       record.error = error?.toString() || 'Unknown error';
-      await send(record);
+      void send(record);
       throw error;
     }
   };
@@ -242,6 +245,11 @@ export function installPatch(): void {
         openaiModule.exports = PatchedOpenAI;
       }
     }
+
+    // Expose patched constructor for ESM test environments
+    try {
+      (globalThis as any).__LLM_WAREHOUSE_PATCHED_OPENAI__ = PatchedOpenAI;
+    } catch {}
     
     if (DEBUG) console.log('[llm-warehouse] OpenAI patches installed');
     
@@ -253,6 +261,8 @@ export function installPatch(): void {
       console.log('[llm-warehouse] Note: Vercel AI SDK requires manual patching due to read-only exports');
       console.log('[llm-warehouse] Use patchVercelAIFunctions() for manual patching');
     }
+    // Install require() hook to auto-patch 'ai' when imported (Node.js only)
+    setupModuleHook();
     
     _patchApplied = true;
     if (DEBUG) console.log('[llm-warehouse] All patches installed successfully');
