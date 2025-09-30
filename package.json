@@ -8,7 +8,13 @@
     "build": "tsc",
     "prepublishOnly": "npm run build",
     "dev": "tsc --watch",
-    "test": "ts-node test.ts"
+    "test": "vitest run --reporter=dot",
+    "test:watch": "vitest",
+    "test:node": "vitest run --project node",
+    "test:browser": "vitest run --project browser",
+    "test:edge": "vitest run --project edge",
+    "test:types": "tsd",
+    "test:no-api": "node -e \"console.log('Skipping tests')\""
   },
   "keywords": [
     "llm",
@@ -21,13 +27,11 @@
   ],
   "author": "Sinan Ozdemir <sinan.u.ozdemir@gmail.com>",
   "license": "MIT",
-  "dependencies": {
-    "@ai-sdk/openai": "^2.0.32",
-    "ai": "^5.0.49",
-    "openai": "^4.0.0"
-  },
+  "dependencies": {},
   "peerDependencies": {
-    "openai": "^4.0.0"
+    "openai": "^4.0.0",
+    "ai": "^5.0.0",
+    "@ai-sdk/openai": "^2.0.0"
   },
   "peerDependenciesMeta": {
     "ai": {
@@ -40,11 +44,15 @@
   "devDependencies": {
     "@types/node": "^20.0.0",
     "dotenv": "^16.0.0",
+    "miniflare": "^3.20240904.0",
     "ts-node": "^10.0.0",
-    "typescript": "^5.0.0"
+    "tsd": "^0.30.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.6.0"
   },
+  "sideEffects": true,
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "files": [
     "dist/**/*",
